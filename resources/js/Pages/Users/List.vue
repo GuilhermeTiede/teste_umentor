@@ -16,6 +16,7 @@ const deleteUser = (id) => {
   http.delete(route('users.destroy', id))
       .then((response) => {
         if (response.data.success) {
+          users.splice(users.findIndex(user => user.id === id), 1);
           toast.success(response.data.success);
         }
       })

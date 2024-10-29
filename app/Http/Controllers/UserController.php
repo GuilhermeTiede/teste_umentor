@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -49,8 +50,7 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('users.index')->with('success', 'Usuário Criado.');
-
+        return redirect()->route('users.index')->with('success', 'Usuário criado com sucesso!');
 
     }
 
@@ -61,16 +61,25 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(Request $request, User $user): RedirectResponse
+    public function update(Request $request, User $user)
     {
-        $request->validate([
+        // Validação dos dados; o Laravel redirecionará automaticamente em caso de erro
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email,' . $user->id,
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user->update($request->all());
+        // Preparação dos dados para atualização
+        $data = $request->only(['name', 'email']);
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
 
-        return redirect()->route('users.index')->with('success', 'Usuário Atualizado.');
+        // Atualização do usuário
+        $user->update($data);
+
+        return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');
     }
 
     /**
