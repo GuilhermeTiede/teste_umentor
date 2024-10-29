@@ -12,6 +12,9 @@ import { mask } from 'vue-the-mask';
 import { VMoney } from 'v-money';
 import Vue3Toastify from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
+import '@fortawesome/fontawesome-free/css/all.css';
+import '@fortawesome/fontawesome-free/js/all.js';
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 const vuetify = createVuetify();
 
