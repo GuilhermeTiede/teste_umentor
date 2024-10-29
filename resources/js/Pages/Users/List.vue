@@ -4,25 +4,26 @@ import { Head, Link, usePage, useForm} from '@inertiajs/vue3';
 import {toast} from "vue3-toastify";
 import {onMounted} from "vue";
 import DangerButton from "@/Components/DangerButton.vue";
+import http from "@/Libs/Http.js";
 
 const { props } = usePage();
-console.log(props.flash);
 const users = props.users || [];
 const success = props.flash?.success;
 const error = props.flash?.error;
 
 
-const form = useForm({})
-
 const deleteUser = (id) => {
- form.delete(route('users.destroy', id), {
-   onSuccess: () => {
-     toast.success('Usuário excluído com sucesso.');
-   },
-   onError: () => {
-     toast.error('Ocorreu um erro ao excluir o usuário.');
-   }
- });
+  http.delete(route('users.destroy', id))
+      .then((response) => {
+        if (response.data.success) {
+          toast.success(response.data.success);
+        }
+      })
+      .catch((error) => {
+        if (error.response && error.response.data.error) {
+          toast.error(error.response.data.error);
+        }
+      });
 };
 
 onMounted(() => {

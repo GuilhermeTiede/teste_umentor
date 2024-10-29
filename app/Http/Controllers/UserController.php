@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Panel\Assistance\Attendment;
+use App\Models\Panel\Assistance\AttendmentAnnotation;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -70,12 +73,26 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'Usuário Atualizado.');
     }
 
-    public function destroy(User $user): RedirectResponse
+    /**
+     * @param User $user
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function destroy(User $user)
     {
-        $user->delete();
+        if ($this->isCurrentUser($user)) {
+            return response()->json(['error' => 'Você não pode excluir a si mesmo.'], 403);
+        }
 
-        return redirect()->route('users.index')->with('success', 'Usuário Deletado.');
+        return response()->json([
+            'success' => 'Usuário excluído com sucesso.',
+             'status' => $user->delete(),
+        ]);
+    }
 
+    private function isCurrentUser(User $user): bool
+    {
+        return auth()->user()->id === $user->id;
     }
 
 }
