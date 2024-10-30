@@ -63,20 +63,17 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        // Validação dos dados; o Laravel redirecionará automaticamente em caso de erro
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:' . User::class . ',email,' . $user->id,
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        // Preparação dos dados para atualização
         $data = $request->only(['name', 'email']);
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
 
-        // Atualização do usuário
         $user->update($data);
 
         return redirect()->route('users.index')->with('success', 'Usuário atualizado com sucesso!');
