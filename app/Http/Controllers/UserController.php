@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Panel\Assistance\Attendment;
-use App\Models\Panel\Assistance\AttendmentAnnotation;
 use App\Models\User;
+use Freshbitsweb\Laratables\Laratables;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Redirect;
+use App\Resources\Laratables\User as LaratablesUser;
 use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class UserController extends Controller
 {
 
-    public function index(): Response
+    public function index(Request $request)
     {
+        if ($request->expectsJson()) {
+            return Laratables::recordsOf(User::class, LaratablesUser::class);
+        }
         return Inertia::render('Users/List', [
             'users' => User::all()
         ]);

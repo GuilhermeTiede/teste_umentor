@@ -15,6 +15,11 @@ import 'vue3-toastify/dist/index.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import '@fortawesome/fontawesome-free/js/all.js';
 
+//Imports do Datatables
+import DataTablesLib from 'datatables.net';
+import DataTable from 'datatables.net-vue3';
+DataTable.use(DataTablesLib);
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 const vuetify = createVuetify();
 
@@ -37,6 +42,7 @@ createInertiaApp({
             .use(pinia)
             .directive('mask', mask)
             .directive('money', VMoney)
+            .component('DataTable', DataTable)
             .mount(el);
     },
     progress: {
