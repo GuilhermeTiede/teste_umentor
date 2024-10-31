@@ -10,7 +10,21 @@ import ItemActions from "@/Components/ItemActions.vue";
 const columns = [
   { field: 'id', headerName: 'ID' },
   { field: 'name', headerName: 'Nome '},
-  { field: 'email', headerName: 'E-mail', sortable: true },
+  { field: 'email', headerName: 'E-mail'},
+  { field: 'created_at', headerName: 'Criado em'},
+  { field: 'updated_at', headerName: 'Atualizado em'},
+  {
+    field: 'actions',
+    headerName: 'Ações',
+    sortable: false,
+    filterable: false,
+    renderCell: (props) => {
+      return h(ItemActions, {
+        editRoute: route('users.edit', [props.row.id]),
+        deleteRoute: route('users.destroy', [props.row.id]),
+      });
+    },
+  },
 ];
 
 const { props } = usePage();

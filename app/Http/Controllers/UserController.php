@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Resources\Laratables\Panel\User as LaratablesUser;
 use Freshbitsweb\Laratables\Laratables;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Resources\Laratables\User as LaratablesUser;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,8 +20,10 @@ class UserController extends Controller
         if ($request->expectsJson()) {
             return Laratables::recordsOf(User::class, LaratablesUser::class);
         }
+
+        $users = User::all();
         return Inertia::render('Users/List', [
-            'users' => User::all()
+            'users' => $users,
         ]);
     }
     /**

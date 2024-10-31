@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Resources;
+namespace App\Resources\Laratables;
 
 use Illuminate\Support\Str;
 

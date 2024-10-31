@@ -1,10 +1,9 @@
 <script setup>
-import { ref, watch, onMounted, toRefs } from 'vue';
+import {ref, watch, onMounted, toRefs, computed} from 'vue';
 import http from '@/Libs/Http';
 import DefaultErrorAlert from '@/Components/DefaultErrorAlert.vue';
 import qs from 'qs';
 
-// Uso de defineProps sem necessidade de atribuição
 const props = defineProps({
   url: String,
   columns: Array,
@@ -13,8 +12,9 @@ const props = defineProps({
   rowsPerPageOptions: Array,
   checkboxSelection: Boolean,
 });
+const columns = props.columns;
 
-// Reactive state management
+const searchTerm = ref('');
 const error = ref(null);
 const loading = ref(false);
 const currentRows = ref(props.data || []);
@@ -23,6 +23,7 @@ const tableOptions = ref({
   page: 1,
   itemsPerPage: props.pageSize || 25,
   sortBy: [],
+  sortDesc: [],
   filters: [],
   showSelect: props.checkboxSelection || false,
 });
@@ -56,8 +57,13 @@ watch(tableOptions, () => {
   if (serverSide.value) {
     loadDataTable();
   }
-});
+},{ deep: true });
 
+watch(searchTerm, () => {
+  if (serverSide.value) {
+    loadDataTable();
+  }
+});
 // Function to load data from server-side
 const loadDataTable = () => {
   loading.value = true;
@@ -89,7 +95,7 @@ const loadDataTable = () => {
     start: (page - 1) * itemsPerPage,
     length: itemsPerPage,
     search: {
-      value: null,
+      value: searchTerm.value || null,
       regex: false,
     },
   });
@@ -118,11 +124,6 @@ const loadDataTable = () => {
       });
 };
 
-// Function to reload the data table
-const reloadDataTable = () => {
-  loadDataTable();
-};
-
 // Handler for when table options change (pagination, sorting, etc.)
 const onOptionsUpdate = (options) => {
   tableOptions.value = {
@@ -130,6 +131,7 @@ const onOptionsUpdate = (options) => {
     page: options.page,
     itemsPerPage: options.itemsPerPage,
     sortBy: options.sortBy,
+    sortDesc: options.sortDesc,
   };
 };
 
@@ -139,6 +141,38 @@ onMounted(() => {
     loadDataTable();
   }
 });
+
+const config = computed(() => ({
+  columns: columns.map(column => {
+    if (!column.renderCell) return column;
+    return {
+      ...column,
+      renderCell: (defaultParams) => {
+        const customParams = {
+          ...defaultParams,
+          reloadDataTable: serverSide ? loadDataTable : () => defaultParams.api.forceUpdate(),
+        };
+        return column.renderCell(customParams);
+      },
+    };
+  }),
+  rows: [],
+  rowCount: serverSide ? 0 : [],
+  page: 0,
+  pageSize: 25,
+  rowsPerPageOptions: [25, 50, 75, 100],
+  autoHeight: true,
+  sortingMode: serverSide ? 'server' : 'client',
+  filterModel: {
+    linkOperator: 'and',
+    items: columns.filter(col => col.filterable),
+  },
+  filterMode: serverSide ? 'server' : 'client',
+  pagination: true,
+  paginationMode: serverSide ? 'server' : 'client',
+  loading: false,
+}));
+
 </script>
 
 <template>
@@ -149,6 +183,7 @@ onMounted(() => {
     <v-card>
       <!-- Data Table -->
       <v-data-table-server
+          :v-bind="{...config}"
           :headers="headers"
           :items="currentRows"
           :items-per-page="tableOptions.itemsPerPage"
@@ -165,7 +200,7 @@ onMounted(() => {
         <template v-for="column in headers" #[`item.${column.key}`]="{ item }">
           <span v-if="props.columns.find(col => col.field === column.key)?.renderCell">
             <!-- Call renderCell function and pass the row as a parameter -->
-            <component :is="props.columns.find(col => col.field === column.key).renderCell" :row="item"/>
+            <component :is="props.columns.find(col => col.field === column.key).renderCell" :row="item" @reload="loadDataTable"/>
           </span>
           <span v-else>{{ item[column.key] }}</span>
         </template>

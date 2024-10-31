@@ -1,22 +1,3 @@
-<template>
-  <v-dialog v-model="isOpen" max-width="500">
-    <v-card>
-      <v-card-title class="headline">
-        <v-icon left color="error">mdi-alert</v-icon>
-        Ooops! Ocorreu um problema!
-      </v-card-title>
-
-      <v-card-text>
-        <strong>{{ getErrorMessage() }}</strong>
-      </v-card-text>
-
-      <v-card-actions>
-        <v-btn color="primary" @click="handleClose">Fechar</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-</template>
-
 <script setup>
 import { ref, watch } from 'vue';
 
@@ -57,3 +38,22 @@ const getErrorMessage = () => {
   );
 };
 </script>
+
+<template>
+  <v-dialog v-model="isOpen" max-width="500">
+    <v-card>
+      <v-card-title class="headline">
+        <v-icon left color="error">mdi-alert</v-icon>
+        Ooops! Ocorreu um problema!
+      </v-card-title>
+
+      <v-card-text>
+        <strong>{{ getErrorMessage() }}</strong>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-btn color="primary" @click="handleClose">Fechar</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
