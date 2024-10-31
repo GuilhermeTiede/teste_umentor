@@ -138,7 +138,6 @@ const loadDataTable = () => {
       });
 };
 
-// Handler for when table options change (pagination, sorting, etc.)
 const onOptionsUpdate = (options) => {
   tableOptions.value = {
     ...tableOptions.value,
@@ -149,7 +148,6 @@ const onOptionsUpdate = (options) => {
   };
 };
 
-// Initial data load if serverSide is true
 onMounted(() => {
   if (serverSide.value) {
     loadDataTable();
@@ -210,10 +208,10 @@ const config = computed(() => ({
         }"
           @update:options="onOptionsUpdate"
       >
-        <!-- Custom cell rendering using the slot item.<key> -->
+
         <template v-for="column in headers" #[`item.${column.key}`]="{ item }">
           <span v-if="props.columns.find(col => col.field === column.key)?.renderCell">
-            <!-- Call renderCell function and pass the row as a parameter -->
+
             <component :is="props.columns.find(col => col.field === column.key).renderCell" :row="item" @reload="loadDataTable"/>
           </span>
           <span v-else>{{ item[column.key] }}</span>
