@@ -14,6 +14,21 @@ class User extends Base
             'users.*',
         ]);
 
+        $query = static::applyColumnFilters($query);
+
         return $query;
     }
+
+    public static function laratablesFilterName(Builder $query, $searchValue)
+    {
+       $query =  $query->where('users.name', 'LIKE', "{$searchValue}%");
+
+       return $query;
+    }
+
+    public static function laratablesFilterEmail(Builder $query, $searchValue)
+    {
+        return $query->where('users.email', 'LIKE', "{$searchValue}%");
+    }
+
 }

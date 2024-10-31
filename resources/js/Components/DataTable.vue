@@ -11,6 +11,7 @@ const props = defineProps({
   pageSize: Number,
   rowsPerPageOptions: Array,
   checkboxSelection: Boolean,
+  filters: Object,
 });
 const columns = props.columns;
 
@@ -64,17 +65,30 @@ watch(searchTerm, () => {
     loadDataTable();
   }
 });
+watch(
+    () => props.columns,
+    () => {
+      if (serverSide.value) {
+        loadDataTable();
+      }
+    },
+    { deep: true }
+);
 // Function to load data from server-side
 const loadDataTable = () => {
   loading.value = true;
   const { page, itemsPerPage, sortBy, sortDesc } = tableOptions.value;
 
   const selectColumns = props.columns.map((col, index) => {
-    let search = {
+    let search = col.search || {
       value: null,
       regex: false,
       operator: 'contains',
     };
+
+    if (props.filters && props.filters[col.field]) {
+      search.value = props.filters[col.field];
+    }
 
     return {
       data: index,
